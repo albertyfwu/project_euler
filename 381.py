@@ -69,15 +69,7 @@ primes = rwh_primes(N)[2:]
 
 print 'computing'
 res = 0
-p_index = 0
-for n in range(5, N):
-    if n % (N / 100) == 0:
-        print n
-    if p_index == len(primes):
-        break
-    if n != primes[p_index]:
-        continue
-    p_index += 1
+for n in primes:
     r = n % 8
     s = (((r * 3) % 8) * n - 3) / 8
     res += s % n
