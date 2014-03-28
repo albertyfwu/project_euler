@@ -1,66 +1,27 @@
-import math
-import operator
-import time
+"""Taken from ProjectEuler forum"""
 
-ARG = 10**2
-MOD = 1234567891
+ARG = 10**9
 
-def prod(l):
-	return reduce(operator.mul, l)
+def F(m, n, mod):
+   def rec(k, product, combs, slotsLeft, result, skip):
+      if product*k > m:
+         return
+      powK, q = k, 1
+      if k > 1:
+         c = slotsLeft
+         while powK*product <= m:
+            result[0] = (result[0] + c*combs)%mod
+            rec(k+1, product*powK, (combs*c)%mod, slotsLeft-q, result, False)
+            q += 1
+            powK *= k
+            c = c*(slotsLeft-q+1)/q
+      if not skip:
+         limit = int((m/product)**0.5)+1
+         for i in xrange(k+1, limit):
+            rec(i, product, combs, slotsLeft, result, True)
+         result[0] = (result[0] + max(0, combs*slotsLeft*(m/product - max(k+1, limit) + 1)))%mod
+   result = [1]
+   rec(1, 1, 1, n, result, False)
+   return result[0]
 
-fact_cache = []
-
-def fact(n):
-	if n <= 30:
-		return fact_cache[n]
-	return math.factorial(n)
-
-def initialize_factorials():
-	for i in range(0, 30):
-		fact_cache.append(math.factorial(i))
-
-def binomial(n, k):
-	ret = 1
-	for t in xrange(1, min(k, n - k) + 1):
-		ret *= (n + 1 - t)
-		ret /= t
-	return ret
-
-count = 0
-num_times = 0
-
-def num_ways(used_len, used_prod, used_sum, used_multi, arg, m):
-	global count 
-	global num_times
-	num_times += 1
-	# start_t = time.time()
-	# n = len(used)
-	n = used_len
-	p = used_prod
-
-	rem = arg - used_sum
-
-	if rem == 0:
-		ret = used_multi
-		return ret
-
-	# now we want to see what's the least number of n+1 we need in here so that n+2 doesn't exceed arg
-	# we need to solve p * (n+1)^(x) * (n+2)^(rem-x) <= arg
-	# => p * (n+2)^rem * (n+1)^x / (n+2)^x <= arg
-	# => [(n+1)/(n+2)]^x <= arg / [p * (n+2)^rem]
-	# => x = ceil[log(arg / [p * (n+2)^rem], (n+1)/(n+2))]
-	start_t = time.time()
-	min_n1 = max(int(math.ceil(math.log(arg / float(p * (n+2)**rem), (n+1) / float(n+2)))), 0)
-	end_t = time.time()
-	count += end_t - start_t
-	ret = sum([num_ways(n + 1, used_prod * (n + 1)**i, used_sum + i, (used_multi * binomial(used_sum + i, i)) % m, arg, m) 
-		for i in range(min_n1, arg - used_sum + 1)])
-	return ret
-
-start = time.time()
-
-initialize_factorials()
-print num_ways(0, 1, 0, 1, ARG, MOD)
-
-end = time.time()
-print end - start, count, count / (end - start), num_times, (end - start) / num_times
+print F(ARG, ARG, 1234567891)
