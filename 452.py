@@ -20,13 +20,11 @@ def initialize_factorials():
 		fact_cache.append(math.factorial(i))
 
 def binomial(n, k):
-	ntok = 1
-	ktok = 1
+	ret = 1
 	for t in xrange(1, min(k, n - k) + 1):
-		ntok *= n
-		ktok *= t
-		n -= 1
-	return ntok / ktok
+		ret *= (n + 1 - t)
+		ret /= t
+	return ret
 
 count = 0
 num_times = 0
