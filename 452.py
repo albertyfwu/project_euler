@@ -29,19 +29,21 @@ def binomial(n, k):
 	return ntok / ktok
 
 count = 0
+num_times = 0
 
-def num_ways(used, used_prod, used_sum, used_multi, arg, m):
+def num_ways(used_len, used_prod, used_sum, used_multi, arg, m):
 	global count 
-	start_t = time.time()
-	n = len(used)
+	global num_times
+	num_times += 1
+	# start_t = time.time()
+	# n = len(used)
+	n = used_len
 	p = used_prod
 
 	rem = arg - used_sum
 
 	if rem == 0:
 		ret = used_multi
-		end_t = time.time()
-		count += end_t - start_t
 		return ret
 
 	# now we want to see what's the least number of n+1 we need in here so that n+2 doesn't exceed arg
@@ -49,15 +51,18 @@ def num_ways(used, used_prod, used_sum, used_multi, arg, m):
 	# => p * (n+2)^rem * (n+1)^x / (n+2)^x <= arg
 	# => [(n+1)/(n+2)]^x <= arg / [p * (n+2)^rem]
 	# => x = ceil[log(arg / [p * (n+2)^rem], (n+1)/(n+2))]
-	min_n1 = max(int(math.ceil(math.log(arg / (p * float(n+2)**rem), (n+1) / float(n+2)))), 0)
-	ret = sum([num_ways(used + [i], used_prod * (n + 1)**i, used_sum + i, (used_multi * binomial(used_sum + i, i)) % m, arg, m) 
+	start_t = time.time()
+	min_n1 = max(int(math.ceil(math.log(arg / float(p * (n+2)**rem), (n+1) / float(n+2)))), 0)
+	end_t = time.time()
+	count += end_t - start_t
+	ret = sum([num_ways(n + 1, used_prod * (n + 1)**i, used_sum + i, (used_multi * binomial(used_sum + i, i)) % m, arg, m) 
 		for i in range(min_n1, arg - used_sum + 1)])
 	return ret
 
 start = time.time()
 
 initialize_factorials()
-print num_ways([], 1, 0, 1, ARG, MOD)
+print num_ways(0, 1, 0, 1, ARG, MOD)
 
 end = time.time()
-print end - start, count, count / (end - start)
+print end - start, count, count / (end - start), num_times, (end - start) / num_times
